@@ -1,12 +1,8 @@
-#####
-# * # ****************************** #
-# * #  Andromeda Corporation © 2024  #
-# * # ****************************** #
-# *
-# * # @file: main.py
-# * # @package: py usb aoa
-# * # @created Date: Fr Mar 2025
-#####
+"""Example script for Android USB accessory (AOA) communication.
+
+Provides helper classes to manage AOA accessory setup and framed message
+exchange (SOH+Length+Data+EOT) between a host and an Android device.
+"""
 
 import array
 import logging
@@ -49,7 +45,23 @@ SERIAL = "0000000012345678"
 
 
 class MessageBuffer:
-    """Buffer for assembling and validating messages"""
+    """Buffer and state machine for assembling framed messages.
+
+    Implements a simple state machine for messages framed as:
+    SOH(1) + Length(2, big-endian) + Data + EOT(1).
+
+    Methods:
+        reset(): Reset internal state to await a new message.
+        process_byte(byte): Feed a single incoming byte and return the
+            completed payload bytes (without framing) when a full message
+            is assembled, otherwise returns None.
+        calculate_checksum(data): Return an 8-bit checksum of `data`.
+
+    Attributes:
+        state (str): Current state of the state machine (e.g. 'WAIT_SOH').
+        buffer (bytearray): Accumulated raw bytes for the current message.
+        length (int): Expected payload length extracted from the length field.
+    """
 
     def __init__(self):
         self.reset()
@@ -102,6 +114,28 @@ class MessageBuffer:
 
 
 class AndroidUSBComm:
+    """Manage USB connection and communication with an Android accessory.
+
+    Responsibilities:
+        - Discover Android devices and transition them into AOA accessory mode.
+        - Discover accessory endpoints and claim interfaces.
+        - Send and receive framed messages using MessageBuffer for parsing.
+        - Run background sender/receiver/reconnect threads.
+
+    Attributes:
+        context (usb1.USBContext): USB context object.
+        handle: Open device handle or None.
+        ep_in (int): Address of IN (device->host) bulk endpoint.
+        ep_out (int): Address of OUT (host->device) bulk endpoint.
+        connected (bool): True when accessory endpoints are configured.
+        interface_num (int): Interface number claimed on the device.
+        send_queue (queue.Queue): Queue for outgoing messages.
+        recv_buffer (MessageBuffer): Message parsing buffer.
+        receiver_running (bool): Receiver thread control flag.
+        sender_running (bool): Sender thread control flag.
+        reconnect_event (threading.Event): Event to request reconnect.
+    """
+
     def __init__(self):
         self.context = usb1.USBContext()
         self.handle = None
