@@ -1,0 +1,16 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="com.stiffsockets.accessory_kit">
+
+  <!-- USB host permissions -->
+  <uses-feature android:name="android.hardware.usb.host" android:required="true" />
+
+  <!-- USB accessory permissions -->
+  <uses-feature android:name="android.hardware.usb.accessory" android:required="true" />
+  <uses-permission android:name="android.permission.USB_ACCESSORY" />
+
+  <application>
+    <!-- USB accessory filter -->
+    <meta-data android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
+      android:resource="@xml/accessory_filter" />
+  </application>
+</manifest>

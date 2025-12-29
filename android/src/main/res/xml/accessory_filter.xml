@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <usb-accessory
+        manufacturer="StiffSockets"
+        model="USBDataExchange"
+        version="1.0"
+        description="USB Data Exchange Accessory"
+        uri="https://github.com/StiffSockets"
+        serial="0000000012345678" />
+</resources>
