@@ -20,7 +20,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  accessory_kit: ^0.1.0
+  accessory_kit: ^1.0.0
 ```
 
 ### Android Setup
